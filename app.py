@@ -5,7 +5,7 @@ import os
 from urllib.parse import urlparse
 
 # Ensure Playwright is installed
-os.system("playwright install --with-deps")
+os.system("playwright install")
 
 def is_valid_url(url):
     """Check if the provided URL is valid."""
