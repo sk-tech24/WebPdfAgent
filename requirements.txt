@@ -1,0 +1,11 @@
+streamlit
+PyMuPDF==1.22.3
+langchain
+langchain-community
+langchain-cohere
+nltk
+playwright
+cohere
+sentence-transformers
+chromadb
+requests
