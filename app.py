@@ -4,9 +4,6 @@ from PdfQaAgent import PdfQaAgent
 import os
 from urllib.parse import urlparse
 
-__import__('pysqlite3')
-import sys
-sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 def is_valid_url(url):
     """Check if the provided URL is valid."""
