@@ -11,3 +11,4 @@ chromadb
 requests
 pysqlite3-binary
 chromadb-pysqlite3
+unstructured
