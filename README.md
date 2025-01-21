@@ -94,7 +94,3 @@ This project is licensed under the Apache License - see the [LICENSE](LICENSE) f
 - **Streamlit:** For building interactive web applications with ease.
 
 ---
-
-You can adjust the **"Installation"** section if you have additional setup steps. The **"Usage"** section should reflect how users will interact with your app once it’s running.
-
-This `README.md` file provides a clear overview of the project, its setup, and how users can engage with it.
