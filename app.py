@@ -10,6 +10,7 @@ os.system("playwright install")
 import nltk
 nltk.data.path.append("./nltk_data/")
 nltk.download("punkt", download_dir="./nltk_data/")
+nltk.download("punkt_tab", download_dir="./nltk_data/")
 
 def is_valid_url(url):
     """Check if the provided URL is valid."""
