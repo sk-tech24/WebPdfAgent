@@ -16,10 +16,6 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
 from langchain_cohere import ChatCohere
 
-import nltk
-nltk.data.path.append("./nltk_data/")
-nltk.download("punkt", download_dir="./nltk_data/")
-
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
