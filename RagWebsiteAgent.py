@@ -151,8 +151,8 @@ class RAGWebsiteAgent:
             browser = p.chromium.launch(headless=True)
             page = browser.new_page()
             try:
-                page.goto(url, timeout=15000)
-                page.wait_for_selector("a")  # Wait for anchor tags to load
+                page.goto(url, timeout=30000)
+                page.wait_for_selector("a", timeout=30000)  # Wait for anchor tags to load
                 links = page.query_selector_all("a[href]")
                 urls = [urljoin(url, link.get_attribute("href")) for link in links]
                 collected_urls.update(set(urls))
