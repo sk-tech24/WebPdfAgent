@@ -15,6 +15,11 @@ from langchain_community.embeddings import SentenceTransformerEmbeddings
 from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
 from langchain_cohere import ChatCohere
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
 
 
 # Set up logging
@@ -147,22 +152,29 @@ class RAGWebsiteAgent:
         )
 
     def extract_dynamic_urls(self, url, collected_urls):
-        with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True)
-            page = browser.new_page()
-            try:
-                page.goto(url, timeout=30000)
-                page.wait_for_selector("a", timeout=30000)  # Wait for anchor tags to load
-                links = page.query_selector_all("a[href]")
-                urls = [urljoin(url, link.get_attribute("href")) for link in links]
-                collected_urls.update(set(urls))
-            except Exception as e:
-                logger.error(f"Error navigating to {url}: {e}")
-            finally:
-                browser.close()
+        """Extract dynamic URLs from the given page using Selenium."""
+        chrome_options = Options()
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--disable-gpu")
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--disable-dev-shm-usage")
+
+        service = Service(ChromeDriverManager().install())
+        driver = webdriver.Chrome(service=service, options=chrome_options)
+
+        try:
+            driver.get(url)
+            driver.implicitly_wait(10)  # Wait for elements to load
+            links = driver.find_elements(By.XPATH, "//a[@href]")
+            urls = [urljoin(url, link.get_attribute("href")) for link in links]
+            collected_urls.update(set(urls))
+        except Exception as e:
+            logger.error(f"Error navigating to {url}: {e}")
+        finally:
+            driver.quit()
 
     def crawl_website(self, start_url):
-        """Crawl the website and extract content using Playwright."""
+        """Crawl the website and extract content using Selenium."""
         urls_to_scrape = {start_url}
         collected_urls = set()
 
@@ -181,7 +193,7 @@ class RAGWebsiteAgent:
         logger.info(f"Collected {len(collected_urls)} unique URLs")
 
         clean_urls = [u for u in collected_urls if urlparse(u).scheme in ("http", "https")]
-        loader = PlaywrightURLLoader(clean_urls, continue_on_failure=True)
+        loader = PlaywrightURLLoader(clean_urls, continue_on_failure=True)  # Keep using PlaywrightURLLoader for loading documents
         documents = loader.load()
 
         logger.info(f"Number of documents loaded: {len(documents)}")
