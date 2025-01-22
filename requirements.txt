@@ -12,3 +12,5 @@ requests
 pysqlite3-binary
 chromadb-pysqlite3
 unstructured
+selenium
+webdriver-manager
