@@ -7,6 +7,8 @@ from urllib.parse import urlparse
 # Ensure Playwright is installed
 os.system("playwright install")
 
+os.environ['COHERE_API_KEY'] = "JmNhbEWy3qQIYLeTWwVqZPPVH3xzteNzgBDUqm8y"
+
 import nltk
 nltk.data.path.append("./nltk_data/")
 nltk.download("punkt", download_dir="./nltk_data/")

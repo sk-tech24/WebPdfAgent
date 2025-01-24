@@ -120,19 +120,3 @@ class WebCrawler:
             )
         self.documents = documents
         return self.documents
-
-
-# Initialize the crawler
-crawler = WebCrawler(base_url="https://www.squadkin.com", throttle_delay=2, use_dynamic=True)
-
-# Start crawling
-crawler.crawl()
-
-# Get the extracted documents
-documents = crawler.get_documents()
-
-# Print results
-# for doc in documents:
-    
-#     print(f"URL: {doc['url']}")
-#     print(f"Extracted Text: {doc['text'][:50]}...\n")
