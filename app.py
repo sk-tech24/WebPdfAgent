@@ -5,7 +5,7 @@ import os
 from urllib.parse import urlparse
 
 # Ensure Playwright is installed
-# os.system("playwright install")
+os.system("playwright install")
 
 import nltk
 nltk.data.path.append("./nltk_data/")

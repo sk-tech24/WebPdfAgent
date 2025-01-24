@@ -32,4 +32,3 @@ libx11-xcb1
 libxcursor1
 libgtk-3-0
 libgdk-pixbuf2.0-0
-google-chrome-stable

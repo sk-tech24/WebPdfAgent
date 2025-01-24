@@ -15,11 +15,11 @@ from langchain_community.embeddings import SentenceTransformerEmbeddings
 from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
 from langchain_cohere import ChatCohere
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
+# from selenium import webdriver
+# from selenium.webdriver.common.by import By
+# from selenium.webdriver.chrome.service import Service
+# from selenium.webdriver.chrome.options import Options
+# from webdriver_manager.chrome import ChromeDriverManager
 from crawler import WebCrawler
 
 # Set up logging
