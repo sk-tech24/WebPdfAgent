@@ -2,13 +2,13 @@ import os
 import pickle
 import logging
 from urllib.parse import urljoin, urlparse
-from playwright.sync_api import sync_playwright
+# from playwright.sync_api import sync_playwright
 import sys
-import shutil
+# import shutil
 import requests
 
 from langchain.prompts import PromptTemplate
-from langchain_community.document_loaders.url_playwright import PlaywrightURLLoader
+# from langchain_community.document_loaders.url_playwright import PlaywrightURLLoader
 from langchain_community.vectorstores import Chroma
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import SentenceTransformerEmbeddings
@@ -20,7 +20,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
-
+from crawler import WebCrawler
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -104,7 +104,12 @@ class RAGWebsiteAgent:
                 raise ValueError(f"The URL {self.base_url} is not reachable. Please enter a valid URL.")
 
             logger.info(f"Crawling the website {self.base_url} and creating a new vector store...")
-            documents = self.crawl_website(self.base_url)
+            # documents = self.crawl_website(self.base_url)
+            crawler = WebCrawler(base_url=self.base_url, throttle_delay=2, use_dynamic=True)
+            # Start crawling
+            crawler.crawl()
+            # Get the extracted documents
+            documents = crawler.get_documents()
             if not documents:
                 raise ValueError(f"No documents were loaded from the URL {self.base_url}. Please check the URL and try again.")
 
@@ -151,53 +156,53 @@ class RAGWebsiteAgent:
             combine_docs_chain_kwargs={"prompt": custom_prompt},
         )
 
-    def extract_dynamic_urls(self, url, collected_urls):
-        """Extract dynamic URLs from the given page using Selenium."""
-        chrome_options = Options()
-        chrome_options.add_argument("--headless")
-        chrome_options.add_argument("--disable-gpu")
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--disable-dev-shm-usage")
+    # def extract_dynamic_urls(self, url, collected_urls):
+    #     """Extract dynamic URLs from the given page using Selenium."""
+    #     chrome_options = Options()
+    #     chrome_options.add_argument("--headless")
+    #     chrome_options.add_argument("--disable-gpu")
+    #     chrome_options.add_argument("--no-sandbox")
+    #     chrome_options.add_argument("--disable-dev-shm-usage")
 
-        service = Service(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=service, options=chrome_options)
+    #     service = Service(ChromeDriverManager().install())
+    #     driver = webdriver.Chrome(service=service, options=chrome_options)
 
-        try:
-            driver.get(url)
-            driver.implicitly_wait(10)  # Wait for elements to load
-            links = driver.find_elements(By.XPATH, "//a[@href]")
-            urls = [urljoin(url, link.get_attribute("href")) for link in links]
-            collected_urls.update(set(urls))
-        except Exception as e:
-            logger.error(f"Error navigating to {url}: {e}")
-        finally:
-            driver.quit()
+    #     try:
+    #         driver.get(url)
+    #         driver.implicitly_wait(10)  # Wait for elements to load
+    #         links = driver.find_elements(By.XPATH, "//a[@href]")
+    #         urls = [urljoin(url, link.get_attribute("href")) for link in links]
+    #         collected_urls.update(set(urls))
+    #     except Exception as e:
+    #         logger.error(f"Error navigating to {url}: {e}")
+    #     finally:
+    #         driver.quit()
 
-    def crawl_website(self, start_url):
-        """Crawl the website and extract content using Selenium."""
-        urls_to_scrape = {start_url}
-        collected_urls = set()
+    # def crawl_website(self, start_url):
+    #     """Crawl the website and extract content using Selenium."""
+    #     urls_to_scrape = {start_url}
+    #     collected_urls = set()
 
-        max_urls = None if self.environment == "production" else 10
+    #     max_urls = None if self.environment == "production" else 10
 
-        while urls_to_scrape and (max_urls is None or len(collected_urls) < max_urls):
-            url = urls_to_scrape.pop()
-            logger.info(f"Crawling URL: {url}")
-            self.extract_dynamic_urls(url, collected_urls)
-            urls_to_scrape.update(collected_urls - self.visited_urls)
-            self.visited_urls.update(collected_urls)
+    #     while urls_to_scrape and (max_urls is None or len(collected_urls) < max_urls):
+    #         url = urls_to_scrape.pop()
+    #         logger.info(f"Crawling URL: {url}")
+    #         self.extract_dynamic_urls(url, collected_urls)
+    #         urls_to_scrape.update(collected_urls - self.visited_urls)
+    #         self.visited_urls.update(collected_urls)
 
-            if max_urls is not None and len(collected_urls) >= max_urls:
-                break
+    #         if max_urls is not None and len(collected_urls) >= max_urls:
+    #             break
 
-        logger.info(f"Collected {len(collected_urls)} unique URLs")
+    #     logger.info(f"Collected {len(collected_urls)} unique URLs")
 
-        clean_urls = [u for u in collected_urls if urlparse(u).scheme in ("http", "https")]
-        loader = PlaywrightURLLoader(clean_urls, continue_on_failure=True)  # Keep using PlaywrightURLLoader for loading documents
-        documents = loader.load()
+    #     clean_urls = [u for u in collected_urls if urlparse(u).scheme in ("http", "https")]
+    #     loader = PlaywrightURLLoader(clean_urls, continue_on_failure=True)  # Keep using PlaywrightURLLoader for loading documents
+    #     documents = loader.load()
 
-        logger.info(f"Number of documents loaded: {len(documents)}")
-        return documents
+    #     logger.info(f"Number of documents loaded: {len(documents)}")
+    #     return documents
 
     def ask_question(self, query):
         """Ask a question and retrieve the answer using the QA system."""
