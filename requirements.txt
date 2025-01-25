@@ -4,6 +4,7 @@ bs4
 langchain
 langchain-community
 langchain-cohere
+langchain-huggingface
 nltk
 playwright
 cohere
