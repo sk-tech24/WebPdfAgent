@@ -2,9 +2,10 @@ import os
 import pickle
 import logging
 import fitz  # PyMuPDF
-from langchain_community.vectorstores import Chroma
+
+from langchain_community.vectorstores import Qdrant
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import SentenceTransformerEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
 from langchain_cohere import ChatCohere
@@ -21,9 +22,10 @@ class PdfQaAgent:
             raise ValueError(f"File {pdf_path} is not a valid PDF. Please provide a PDF file.")
 
         self.pdf_path = pdf_path
-        self.persist_directory = os.path.join(persist_directory, os.path.splitext(os.path.basename(pdf_path))[0])
+        self.collection_name = os.path.splitext(os.path.basename(pdf_path))[0]
+        self.persist_directory = os.path.join(persist_directory, self.collection_name)
         self.text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
-        self.embeddings = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+        self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
         self.vector_store = None
 
         # Initialize memory for conversation history
@@ -53,10 +55,11 @@ class PdfQaAgent:
         """Prepare the QA system by embedding and indexing the PDF content."""
         try:
             if os.path.exists(self.persist_directory):
-                logger.info(f"Loading existing Chroma vector store for {self.pdf_path}...")
-                self.vector_store = Chroma(
-                    persist_directory=self.persist_directory,
-                    embedding_function=self.embeddings,
+                logger.info(f"Loading existing Qdrant vector store for {self.pdf_path}...")
+                self.vector_store = Qdrant.from_existing_collection(
+                    collection_name=self.collection_name,
+                    path=self.persist_directory,
+                    embedding=self.embeddings,
                 )
             else:
                 logger.info(f"Processing the PDF {self.pdf_path} and creating a new vector store...")
@@ -70,11 +73,12 @@ class PdfQaAgent:
                 with open(os.path.join(self.persist_directory, "documents.pkl"), "wb") as f:
                     pickle.dump(splits, f)
 
-                self.vector_store = Chroma.from_texts(
+                self.vector_store = Qdrant.from_texts(
                     texts=splits,
                     embedding=self.embeddings,
                     metadatas=metadata,
-                    persist_directory=self.persist_directory,
+                    path=self.persist_directory,
+                    collection_name=self.collection_name
                 )
                 self.vector_store.persist()
 
