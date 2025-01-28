@@ -16,3 +16,4 @@ chromadb-pysqlite3
 unstructured
 selenium
 webdriver-manager
+qdrant-client
